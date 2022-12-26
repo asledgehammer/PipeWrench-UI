@@ -54,7 +54,7 @@
     "@asledgehammer/pipewrench": "^41.76.1",
     "@asledgehammer/pipewrench-events": "^41.73.0",
     "@vanilla-extract/css": "^1.9.2",
-    "fs-extra": "^10.1.0",
+    "fs-extra": "^11.1.0",
     "react": "^18.2.0"
   }
 }
