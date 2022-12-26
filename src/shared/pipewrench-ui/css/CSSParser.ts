@@ -1,5 +1,5 @@
 import { CSSChain } from './CSSChain';
-import { CSSRuleset } from './CSS';
+import { CSSRuleset } from './CSSRuleSet';
 import { kebabtoCamelCase } from './StringUtils';
 
 /**

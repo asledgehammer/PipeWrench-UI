@@ -67,7 +67,14 @@ Events.onMainMenuEnter.addListener(() => {
   let element: PWUIElement = (
     <element
       class="my-element"
-      style="top: 64px; left: 64px; width: 0px; height: 512px; background-image: url(media/textures/cat_pic.png)"
+      style={[
+        'top: 64px',
+        'left: 64px',
+        'width: 0px',
+        'height: 512px',
+        'background-image: url(media/textures/cat_pic.png)',
+        'background-repeat: no-repeat'
+      ].join(';')}
       on-update={onUpdate}
     ></element>
   );

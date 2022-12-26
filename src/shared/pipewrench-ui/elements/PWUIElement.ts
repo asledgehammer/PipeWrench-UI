@@ -1,8 +1,8 @@
-import { CSSRuleset } from '../css/CSS';
 import { CSSReader } from '../css/CSSParser';
 import { UIElement, UIManager } from '@asledgehammer/pipewrench';
 import { AnyProps, Element, OptionalElementFunction } from '../PipeWrenchUI';
 import { ElementCache } from './ElementCache';
+import { CSSRuleset } from '../css/CSSRuleSet';
 
 export interface I_PWUIElement {
   style?: string;
@@ -90,18 +90,21 @@ export class PWUIElement implements Element {
 
   /** (Java-side hook into the mock ISUIElement) */
   render(): void {
-    const x = this.cache.x.value;
-    const y = this.cache.y.value;
-    const w = this.cache.width.value;
-    const h = this.cache.height.value;
+    const x = this.cache.x;
+    const y = this.cache.y;
+    const w = this.cache.width;
+    const h = this.cache.height;
 
     // print(`${x} ${y} ${w} ${h}`);
 
     // Set dimensions.
-    this.javaObject?.setX(x);
-    this.javaObject?.setY(y);
-    this.javaObject?.setWidth(w);
-    this.javaObject?.setHeight(h);
+    this.javaObject.setX(x);
+    this.javaObject.setY(y);
+    this.javaObject.setWidth(w);
+    this.javaObject.setHeight(h);
+
+    this.javaObject.setStencilRect(x, y, Math.max(0, w), Math.max(0, h));
+    this.javaObject.suspendStencil();
 
     this.renderBackground(x, y, w, h);
 
@@ -110,14 +113,36 @@ export class PWUIElement implements Element {
 
   protected renderBackground(x: number, y: number, w: number, h: number) {
     // Draw the background of the element.
-    const { value: backgroundColor } = this.cache.backgroundColor;
-    const { value: texture } = this.cache.backgroundImage;
+    const { backgroundColor, backgroundImage: tex } = this.cache;
+
+    if (backgroundColor != null) {
+      const { r, g, b, a } = backgroundColor;
+      this.javaObject.DrawTextureScaledColor(null, x, y, w, h, r, g, b, a);
+    }
 
     if (backgroundColor != null && backgroundColor.a !== 0) {
       // (Only draw if the color isn't fully transparent)
-      const { r, g, b, a } = backgroundColor;
+      // const { r, g, b, a } = backgroundColor;
       // print(`${r} ${g} ${b} ${a}`)
-      this.javaObject?.DrawTextureScaledColor(texture, x, y, w, h, r, g, b, a);
+
+      if (tex != null) {
+        const { style } = this;
+        const { backgroundRepeat: repeatRule } = style;
+
+        this.javaObject.resumeStencil();
+        if (repeatRule === 'repeat') {
+          this.javaObject.DrawTextureTiled(tex, x, y, w, h, 1, 1, 1, 1);
+        } else if (repeatRule === 'round') {
+          this.javaObject.DrawTextureScaledColor(tex, x, y, w, h, 1, 1, 1, 1);
+        } else if (repeatRule === 'repeat-x') {
+          this.javaObject.DrawTextureTiledX(tex, x, y, w, h, 1, 1, 1, 1);
+        } else if (repeatRule === 'repeat-y') {
+          this.javaObject.DrawTextureTiledY(tex, x, y, w, h, 1, 1, 1, 1);
+        } else if (repeatRule === 'no-repeat') {
+          this.javaObject.DrawTextureColor(tex, 0, 0, 1, 1, 1, 1);
+        }
+        this.javaObject.suspendStencil();
+      }
     }
   }
 
@@ -129,7 +154,7 @@ export class PWUIElement implements Element {
   }
 
   addToUIManager() {
-    UIManager.AddUI(this.javaObject!!);
+    UIManager.AddUI(this.javaObject);
   }
 
   /**

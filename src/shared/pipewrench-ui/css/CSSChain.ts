@@ -1,5 +1,5 @@
-import { CSSRuleset } from './CSS';
 import { SelectorBlocks } from './CSSParser';
+import { CSSRuleset } from './CSSRuleSet';
 
 export class CSSChain {
   readonly links: { [selector: string]: CSSChainLink } = {};

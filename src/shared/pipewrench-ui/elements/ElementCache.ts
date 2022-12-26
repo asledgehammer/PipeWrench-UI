@@ -25,12 +25,13 @@ export class CachedValue<Type> {
 export class ElementCache {
   element: PWUIElement;
 
-  x: CachedValue<number> = new CachedValue(0);
-  y: CachedValue<number> = new CachedValue(0);
-  width: CachedValue<number> = new CachedValue(0);
-  height: CachedValue<number> = new CachedValue(0);
-  backgroundColor: CachedValue<RGBA> = new CachedValue(asRGBA(0, 0, 0, 0, '1'));
-  backgroundImage: CachedValue<Texture> = new CachedValue(null);
+  x = 0;
+  y = 0;
+  width = 0;
+  height = 0;
+  backgroundColor = asRGBA(0, 0, 0, 0, '1');
+  backgroundImage: Texture = null;
+  backgroundRepeat: string = 'repeat';
 
   constructor(element: PWUIElement) {
     this.element = element;
@@ -43,44 +44,41 @@ export class ElementCache {
   calculate(force: boolean = false) {
     const { element } = this;
     const { style } = element;
-    this.x.value = formatNumValue(element, 'left', style.left);
-    this.y.value = formatNumValue(element, 'top', style.top);
-    this.width.value = formatNumValue(element, 'width', style.width);
-    this.height.value = formatNumValue(element, 'height', style.height);
+    this.x = formatNumValue(element, 'left', style.left);
+    this.y = formatNumValue(element, 'top', style.top);
+    this.width = formatNumValue(element, 'width', style.width);
+    this.height = formatNumValue(element, 'height', style.height);
 
     this.calculateBackgroundColor(force);
     this.calculateBackgroundImage(force);
+    this.backgroundRepeat = style.backgroundRepeat;
   }
 
   calculateDimensions(force: boolean) {
     const { element } = this;
     const { style } = element;
-    this.x.value = formatNumValue(element, 'left', style.left);
-    this.y.value = formatNumValue(element, 'top', style.top);
-    this.width.value = formatNumValue(element, 'width', style.width);
-    this.height.value = formatNumValue(element, 'height', style.height);
+    this.x = formatNumValue(element, 'left', style.left);
+    this.y = formatNumValue(element, 'top', style.top);
+    this.width = formatNumValue(element, 'width', style.width);
+    this.height = formatNumValue(element, 'height', style.height);
   }
 
   calculateBackgroundColor(force: boolean) {
-    if (!this.backgroundColor.dirty && !force) return;
     const { element } = this;
     const { style } = element;
-    this.backgroundColor.value = formatColor(element, style.backgroundColor);
-    this.backgroundColor.dirty = false;
+    this.backgroundColor = formatColor(element, style.backgroundColor);
   }
 
   calculateBackgroundImage(force: boolean) {
-    if (!this.backgroundColor.dirty && !force) return;
     const { element } = this;
     const { style } = element;
     let { backgroundImage } = style;
     if (backgroundImage != null && backgroundImage.indexOf('url(') !== -1) {
       backgroundImage = backgroundImage.replace('url(', '').replace(')', '');
-      this.backgroundImage.value = TextureCache.getOrLoad(backgroundImage);
+      this.backgroundImage = TextureCache.getOrLoad(backgroundImage);
     } else {
-      this.backgroundImage.value = null;
+      this.backgroundImage = null;
     }
-    this.backgroundImage.dirty = false;
   }
 }
 
@@ -97,7 +95,7 @@ export const formatColor = (element: PWUIElement, value: string): RGBA => {
     return { ...HSL_2_RGB(parseHSL(value), '1'), a: 1 };
   } else if (value.indexOf('inherit') !== -1) {
     if (element.parent != null) {
-      return { ...element.parent.cache.backgroundColor.value };
+      return { ...element.parent.cache.backgroundColor };
     } else {
       return transparent();
     }
@@ -130,7 +128,7 @@ export const formatNumValue = (
     ) {
       compare =
         element.parent != null
-          ? element.parent.cache.width.value
+          ? element.parent.cache.width
           : Core.getInstance().getScreenWidth();
     } else if (
       property === 'top' ||
@@ -141,7 +139,7 @@ export const formatNumValue = (
     ) {
       compare =
         element.parent != null
-          ? element.parent.cache.height.value
+          ? element.parent.cache.height
           : Core.getInstance().getScreenHeight();
     } else {
       // TODO: Future percentage checks.
