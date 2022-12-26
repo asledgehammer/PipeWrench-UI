@@ -143,23 +143,24 @@ export type MaxWidthRule = 'initial' | 'inherit' | 'none';
 export type MaxHeightRule = 'initial' | 'inherit' | 'none';
 
 export class CSSRuleset {
-  'position': PositionValue = 'relative';
-  'display': DisplayValue = 'block';
-  'top': TopValue = 'auto';
-  'left': LeftValue = 'auto';
-  'width': WidthRule | string = 'auto';
-  'height': HeightRule | string = 'auto';
-  'min-width': MinWidthRule | string = '0';
-  'min-height': MinHeightRule | string = '0';
-  'max-width': MaxWidthRule | string = 'none';
-  'max-height': MaxHeightRule | string = 'none';
+  position: PositionValue = 'relative';
+  display: DisplayValue = 'block';
+  top: TopValue = 'auto';
+  left: LeftValue = 'auto';
+  width: WidthRule | string = 'auto';
+  height: HeightRule | string = 'auto';
+  minWidth: MinWidthRule | string = '0';
+  minHeight: MinHeightRule | string = '0';
+  maxWidth: MaxWidthRule | string = 'none';
+  maxHeight: MaxHeightRule | string = 'none';
 
-  'background-color': string = 'none';
-  'background-image': string = 'none';
+  backgroundColor: string = 'none';
+  backgroundImage: string = 'none';
 
   constructor(raw?: SelectorBlock) {
     if (raw != null) {
       for (const property of Object.keys(raw)) {
+        print(`property: ${property}`);
         (this as any)[property] = raw[property];
       }
     }
@@ -167,31 +168,31 @@ export class CSSRuleset {
 
   asInline(): CSSRuleset {
     const copy = new CSSRuleset();
-    copy['position'] = this['position'];
-    copy['display'] = this['display'];
-    copy['top'] = this['top'];
-    copy['left'] = this['left'];
-    copy['width'] = this['width'];
-    copy['height'] = this['height'];
-    copy['min-width'] = this['min-width'];
-    copy['min-height'] = this['min-height'];
-    copy['max-width'] = this['max-width'];
-    copy['max-height'] = this['max-height'];
-    copy['background-color'] = this['background-color'];
+    copy.position = this.position;
+    copy.display = this.display;
+    copy.top = this.top;
+    copy.left = this.left;
+    copy.width = this.width;
+    copy.height = this.height;
+    copy.minWidth = this.minWidth;
+    copy.minHeight = this.minHeight;
+    copy.maxWidth = this.maxWidth;
+    copy.maxHeight = this.maxHeight;
+    copy.backgroundColor = this.backgroundColor;
     return copy;
   }
 
   setRules(other: CSSRuleset) {
-    this['position'] = other['position'];
-    this['display'] = other['display'];
-    this['top'] = other['top'];
-    this['left'] = other['left'];
-    this['width'] = other['width'];
-    this['height'] = other['height'];
-    this['min-width'] = other['min-width'];
-    this['min-height'] = other['min-height'];
-    this['max-width'] = other['max-width'];
-    this['max-height'] = other['max-height'];
-    this['background-color'] = other['background-color'];
+    this.position = other.position;
+    this.display = other.display;
+    this.top = other.top;
+    this.left = other.left;
+    this.width = other.width;
+    this.height = other.height;
+    this.minWidth = other.minWidth;
+    this.minHeight = other.minHeight;
+    this.maxWidth = other.maxWidth;
+    this.maxHeight = other.maxHeight;
+    this.backgroundColor = other.backgroundColor;
   }
 }

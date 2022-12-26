@@ -1,5 +1,6 @@
 import { CSSChain } from './CSSChain';
 import { CSSRuleset } from './CSS';
+import { kebabtoCamelCase } from './StringUtils';
 
 /**
  * **CSSReader** is a singleton utility for parsing CSS text as objects.
@@ -81,7 +82,9 @@ export class CSSReader {
       if (block !== '') {
         const split = block.split(':'); // [property, value]
         if (split.length !== 2) error(`Invalid rule: ${block.trim()}`);
-        selection[split[0].trim()] = split[1].trim();
+        let property = kebabtoCamelCase(split[0].trim());
+        let value = split[1].trim();
+        selection[property] = value;
       }
     }
     return selection;

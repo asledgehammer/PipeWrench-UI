@@ -54,8 +54,8 @@ const onUpdate: OptionalElementFunction = (element: PWUIElement) => {
 
   // Set our values very similar to how JavaScript API works when editing HTMLElement.style.
   const { r, g, b, a } = color;
-  element.style['width'] = `${width}px`;
-  element.style['background-color'] = `rgba(${r}, ${g}, ${b}, ${a})`;
+  element.style.width = `${width}px`;
+  element.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${a})`;
 
   tick = tick === tickMax ? 0 : tick + 1;
 };
@@ -67,7 +67,7 @@ Events.onMainMenuEnter.addListener(() => {
   let element: PWUIElement = (
     <element
       class="my-element"
-      style="top: 64px; left: 64px; width: 0; height: 512px; background-image: url(media/textures/cat_pic.png)"
+      style="top: 64px; left: 64px; width: 0px; height: 512px; background-image: url(media/textures/cat_pic.png)"
       on-update={onUpdate}
     ></element>
   );

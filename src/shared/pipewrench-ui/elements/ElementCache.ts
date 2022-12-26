@@ -63,25 +63,17 @@ export class ElementCache {
 
   calculateBackgroundColor(force: boolean) {
     if (!this.backgroundColor.dirty && !force) return;
-
     const { element } = this;
     const { style } = element;
-
-    this.backgroundColor.value = formatColor(
-      element,
-      'background-color',
-      style['background-color']
-    );
+    this.backgroundColor.value = formatColor(element, style.backgroundColor);
     this.backgroundColor.dirty = false;
   }
 
   calculateBackgroundImage(force: boolean) {
     if (!this.backgroundColor.dirty && !force) return;
-
     const { element } = this;
     const { style } = element;
-
-    let backgroundImage = style['background-image'];
+    let { backgroundImage } = style;
     if (backgroundImage != null && backgroundImage.indexOf('url(') !== -1) {
       backgroundImage = backgroundImage.replace('url(', '').replace(')', '');
       this.backgroundImage.value = TextureCache.getOrLoad(backgroundImage);
@@ -92,11 +84,7 @@ export class ElementCache {
   }
 }
 
-export const formatColor = (
-  element: PWUIElement,
-  property: string,
-  value: string
-): RGBA => {
+export const formatColor = (element: PWUIElement, value: string): RGBA => {
   value = value.toLowerCase().trim();
   if (value.indexOf('#') === 0) return parseHEX(value, '1');
   else if (value.indexOf('cmyk(') !== -1) {

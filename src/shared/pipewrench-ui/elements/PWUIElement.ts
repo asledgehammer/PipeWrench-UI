@@ -113,8 +113,6 @@ export class PWUIElement implements Element {
     const { value: backgroundColor } = this.cache.backgroundColor;
     const { value: texture } = this.cache.backgroundImage;
 
-    print(texture);
-
     if (backgroundColor != null && backgroundColor.a !== 0) {
       // (Only draw if the color isn't fully transparent)
       const { r, g, b, a } = backgroundColor;
