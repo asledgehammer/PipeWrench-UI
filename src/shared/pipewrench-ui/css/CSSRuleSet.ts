@@ -111,7 +111,6 @@ export class CSSRuleset {
   set backgroundImage(value: string) {
     this._backgroundImage.value = value;
   }
-
   ///////////////////////////////////////////////////////
   // background-repeat
   private readonly _backgroundRepeat = new CSSRule('repeat');
@@ -120,6 +119,51 @@ export class CSSRuleset {
   }
   set backgroundRepeat(value: string) {
     this._backgroundRepeat.value = value;
+  }
+  ///////////////////////////////////////////////////////
+  // background-origin
+  private readonly _backgroundOrigin = new CSSRule('auto');
+  get backgroundOrigin(): string {
+    return this._backgroundOrigin.value;
+  }
+  set backgroundOrigin(value: string) {
+    this._backgroundOrigin.value = value;
+  }
+  ///////////////////////////////////////////////////////
+  // background-position
+  private readonly _backgroundPosition = new CSSRule('auto');
+  get backgroundPosition(): string {
+    return this._backgroundPosition.value;
+  }
+  set backgroundPosition(value: string) {
+    this._backgroundPosition.value = value;
+  }
+  ///////////////////////////////////////////////////////
+  // background-position-x
+  private readonly _backgroundPositionX = new CSSRule('auto');
+  get backgroundPositionX(): string {
+    return this._backgroundPositionX.value;
+  }
+  set backgroundPositionX(value: string) {
+    this._backgroundPositionX.value = value;
+  }
+  ///////////////////////////////////////////////////////
+  // background-position-y
+  private readonly _backgroundPositionY = new CSSRule('auto');
+  get backgroundPositionY(): string {
+    return this._backgroundPositionY.value;
+  }
+  set backgroundPositionY(value: string) {
+    this._backgroundPositionY.value = value;
+  }
+  ///////////////////////////////////////////////////////
+  // background-size
+  private readonly _backgroundSize = new CSSRule('auto');
+  get backgroundSize(): string {
+    return this._backgroundSize.value;
+  }
+  set backgroundSize(value: string) {
+    this._backgroundSize.value = value;
   }
 
   constructor(raw?: SelectorBlock) {

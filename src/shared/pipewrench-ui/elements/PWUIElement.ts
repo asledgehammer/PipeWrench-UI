@@ -139,7 +139,8 @@ export class PWUIElement implements Element {
         } else if (repeatRule === 'repeat-y') {
           this.javaObject.DrawTextureTiledY(tex, x, y, w, h, 1, 1, 1, 1);
         } else if (repeatRule === 'no-repeat') {
-          this.javaObject.DrawTextureColor(tex, 0, 0, 1, 1, 1, 1);
+          this.javaObject.DrawTextureAngle(tex, x + tex.getWidth() / 2, y + tex.getHeight() / 2, 45, 1, 1, 1, 1);
+          // this.javaObject.DrawTextureColor(tex, 0, 0, 1, 1, 1, 1);
         }
         this.javaObject.suspendStencil();
       }
