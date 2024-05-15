@@ -34,7 +34,7 @@
   "devDependencies": {
     "@asledgehammer/tstl-pipewrench": "^0.0.13",
     "@types/fs-extra": "^9.0.13",
-    "@types/react": "^18.0.26",
+    "@types/react": "^18.3.2",
     "@typescript-eslint/eslint-plugin": "^5.47.0",
     "@typescript-eslint/parser": "^5.47.0",
     "del-cli": "^5.0.0",
@@ -56,6 +56,6 @@
     "@asledgehammer/pipewrench-events": "^41.73.0",
     "@vanilla-extract/css": "^1.9.2",
     "fs-extra": "^10.1.0",
-    "react": "^18.2.0"
+    "react": "^18.3.1"
   }
 }
