@@ -2,13 +2,13 @@
 //
 //   URL: https://gist.github.com/probable-basilisk/3d1ff2c9a932c03cfb598f02678951c3
 
-import { HTMLBodyElement, BodyAttributes } from './html/elements/body';
-import { DivAttributes, HTMLDivElement } from './html/elements/div';
-import { ImageAttributes, HTMLImageElement } from './html/elements/img';
-import { RadialMenuAttributes, HTMLRadialMenu } from './html/elements/radialmenu';
-import { HTMLRawText } from './html/elements/rawtext';
-import { HTMLScriptElement, ScriptAttributes } from './html/elements/script';
-import { SpanAttributes, HTMLSpanElement } from './html/elements/span';
+import { HTMLBodyElement, BodyAttributes } from './html/elements/HTMLBodyElement';
+import { DivAttributes, HTMLDivElement } from './html/elements/HTMLDivElement';
+import { ImageAttributes, HTMLImageElement } from './html/elements/HTMLImageElement';
+import { RadialMenuAttributes, HTMLRadialMenu } from './html/elements/HTMLRadialMenuElement';
+import { HTMLRawText } from './html/elements/HTMLRawText';
+import { HTMLScriptElement, ScriptAttributes } from './html/elements/HTMLScriptElement';
+import { SpanAttributes, HTMLSpanElement } from './html/elements/HTMLSpanElement';
 
 /* ########################################################## */
 

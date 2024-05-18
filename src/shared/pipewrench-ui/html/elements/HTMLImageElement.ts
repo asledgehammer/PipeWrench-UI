@@ -3,7 +3,7 @@ import { HTMLElement, CSS_DEFAULT_ELEMENT, IHTMLElementAttributes } from '../HTM
 import { asRGBA } from '../../css/color/RGBA';
 import { TextureCache } from '../../TextureCache';
 import { AnyProps, ReactElement } from '../../React';
-import { getUIElement } from '../PZ';
+import { getGraphics } from '../PZ';
 import { tPrint } from '../../util/table';
 
 const COLOR_WHITE = asRGBA(1, 1, 1, 1, "1");
@@ -48,7 +48,7 @@ export class HTMLImageElement extends HTMLElement<'img'> implements ImageAttribu
 
   protected renderBackground(x: number, y: number, w: number, h: number) {
 
-    const javaObject = getUIElement();
+    const javaObject = getGraphics();
 
     // Draw the background of the element.
     let { value: backgroundColor } = this.cache.backgroundColor;
@@ -70,11 +70,12 @@ export class HTMLImageElement extends HTMLElement<'img'> implements ImageAttribu
     }
   }
 
-  protected renderText(text: string, x: number, y: number, w: number, h: number) {
+  protected renderInnerText() {
     const { alt } = this;
     const { value: texture } = this.cache.backgroundImage;
+    const { x1: x, y1: y } = this.cache.outer;
 
-    const javaObject = getUIElement();
+    const javaObject = getGraphics();
 
     if (texture == null && alt != null && alt.length != 0) {
       javaObject.DrawTextureScaled(TEX_BROKEN_IMG, x + 1, y, 21, 24, 1);

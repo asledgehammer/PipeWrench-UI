@@ -1,22 +1,22 @@
-import { UIFont } from "@asledgehammer/pipewrench";
+import { Core, UIFont } from "@asledgehammer/pipewrench";
 import { CSSRuleset } from "../css/CSS";
 import { CSSReader } from "../css/CSSParser";
-import { HTMLImageElement } from "./elements/img";
+import { HTMLImageElement } from "./elements/HTMLImageElement";
 import { TextureCache } from "../TextureCache";
 import { formatColor, formatNumValue } from "../util/Format";
 import { AnyProps, ReactElement, OptionalElementFunction } from "../React";
-import { ElementCache } from "../Cache";
-import { getUIElement } from "./PZ";
+import { ElementCache, EMPTY_INNER_TEXT } from "../Cache";
+import { getGraphics } from "./PZ";
 import { AddEventListenerOptions, EventListener, EventTarget, RemoveEventListenerOptions } from "../event/EventTarget";
 import { Event } from "../event/Event";
 
-import * as JSON from '../util/JSON';
 import { tPrint } from "../util/table";
-import { HTMLRawText } from "./elements/rawtext";
+import { HTMLRawText } from "./elements/HTMLRawText";
+import { HTMLFont, HTMLFontPool } from "./HTMLFont";
 
 export const CSS_DEFAULT_ELEMENT = {
     'background-color': 'transparent',
-    'color': 'rgba(0, 0, 0, 1)'
+    'color': 'inherit',
 };
 
 export interface IHTMLElementAttributes {
@@ -112,7 +112,7 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
     update2(): void {
         if (this.checkRemovalFlag()) return;
         this.updateInternal();
-        this.calculate(true);
+        this.calculate(false);
         if (this.onupdate) this.onupdate(this);
         this.updateChildren();
     }
@@ -149,10 +149,59 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
     }
 
     calculate(force: boolean) {
+        this.calculateFont(force);
+        this.calculateColor(force);
         this.calculateBackgroundColor(force);
         // Calculate background-image before dimensions for <img> elements.
         this.calculateBackgroundImage(force);
         this.calculateDimensions(force);
+        this.calculateInnerText(force);
+    }
+
+    calculateInnerText(force: boolean) {
+
+        if (this.innerText == this.cache.innerText.value.raw) return;
+        if (this.innerText != null) {
+            if (this.innerText.length == 0) {
+                this.cache.innerText.value = EMPTY_INNER_TEXT;
+                this.cache.innerText.dirty = false;
+                return;
+            } else {
+                const core = Core.getInstance();
+                let width = core.getScreenWidth();
+                let height = core.getScreenHeight();
+
+                const { parent } = this;
+                if (parent != null) {
+                    width = parent.cache.inner.x2 - parent.cache.inner.x1;
+                    height = parent.cache.inner.y2 - parent.cache.inner.y1;
+                }
+
+                this.cache.innerText.value = this.cache.font.value.measureText(this.innerText, width, height);
+                this.cache.innerText.dirty = false;
+            }
+        } else {
+            this.cache.innerText.value = EMPTY_INNER_TEXT;
+            this.cache.innerText.dirty = false;
+        }
+    }
+
+    calculateFont(force: boolean) {
+        const { cache, cssRuleset } = this;
+
+        if (!force && !cache.font.dirty) return;
+
+        if (cssRuleset.font != null) {
+            cache.font.value = this.getFont(cssRuleset.font);
+            cache.font.dirty = false;
+        }
+
+        if (cache.font.value == null) {
+            cache.font.value = this.getFont('small');
+            cache.font.dirty = false;
+        }
+
+        // print(`font: ${tPrint(cache.font.value, 0, 4)}`);
     }
 
     calculateDimensions(force: boolean) {
@@ -213,6 +262,24 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
             if (element.parent != null) cache.outer.y1 = element.parent.cache.outer.y1;
             else cache.outer.y1 = 0;
         }
+
+        // FIXME - Temporary. Calculate padding.
+        cache.inner.x1 = cache.outer.x1;
+        cache.inner.y1 = cache.outer.y1;
+        cache.inner.x2 = cache.outer.x2;
+        cache.inner.y2 = cache.outer.y2;
+
+        print(`${tPrint(cache.inner, 0, 4)} {'width'=${cache.width.value}, 'height'=${cache.height.value}}`);
+    }
+
+    calculateColor(force: boolean) {
+        const element = this;
+        const { cache, cssRuleset } = this;
+
+        if (!cache.color.dirty && !force) return;
+
+        cache.color.value = formatColor(element, cssRuleset['color']);
+        cache.color.dirty = false;
     }
 
     calculateBackgroundColor(force: boolean) {
@@ -289,7 +356,7 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
             // print(`[${this.tag}] => x: ${x}, y: ${y}, w: ${w}, h: ${h}`);
         } else {
             this.renderBackground(x, y, w, h);
-            this.renderText(this.innerText, x, y, w, h);
+            this.renderInnerText();
         }
 
         this.renderInternal();
@@ -311,7 +378,7 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
 
     protected renderBackground(x: number, y: number, w: number, h: number) {
 
-        const javaObject = getUIElement();
+        const javaObject = getGraphics();
 
         // Draw the background of the element.
         const { value: backgroundColor } = this.cache.backgroundColor;
@@ -331,11 +398,11 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
         }
     }
 
-    protected renderText(text: string, x: number, y: number, w: number, h: number) {
-        const javaObject = getUIElement();
-
-        if (text != null && text.length != 0) {
-            javaObject.DrawText(UIFont.Large, text, x, y, 1, 1, 1, 1);
+    protected renderInnerText() {
+        const { innerText } = this;
+        if (innerText != null && innerText.length != 0 && this.cache.font.value != null) {
+            const { r, g, b, a } = this.cache.color.value;
+            this.cache.font.value.drawText(this.cache.innerText.value, this.cache.inner.x1, this.cache.inner.x2, r, g, b, a);
         }
     }
 
@@ -479,5 +546,25 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
             }
         }
         return s;
+    }
+
+    protected getFontPool(): HTMLFontPool | null {
+        if ((this as any).fonts != null) {
+            return (this as any).fonts;
+        } else if (this.parent != null) {
+            return this.parent.getFontPool();
+        } else {
+            return null;
+        }
+    }
+
+    protected getFont(name: string): HTMLFont | null {
+        if ((this as any).fonts != null) {
+            return (this as any).fonts.getFont(name);
+        } else if (this.parent != null) {
+            return this.parent.getFont(name);
+        } else {
+            return null;
+        }
     }
 } 

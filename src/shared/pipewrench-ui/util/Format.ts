@@ -6,6 +6,7 @@ import { HSL_2_RGB, parseHSL } from "../css/color/HSL";
 import { parseRGB } from "../css/color/RGB";
 import { RGBA, parseRGBA } from "../css/color/RGBA";
 import { HTMLElement } from "../html/HTMLElement";
+import { COLOR_MAP } from "../css/CSS";
 
 export const formatColor = (
     element: HTMLElement<string>,
@@ -27,13 +28,18 @@ export const formatColor = (
         } else {
             return transparent();
         }
-    } else if (
-        value.indexOf('transparent') !== -1 ||
-        value.indexOf('initial') !== -1 ||
-        value.indexOf('none') !== -1 ||
-        value.indexOf('unset') !== -1
-    ) {
-        return transparent();
+
+    } else {
+        const colorMapped = COLOR_MAP[value];
+        if (!colorMapped
+            && (value.indexOf('transparent') !== -1 ||
+                value.indexOf('initial') !== -1 ||
+                value.indexOf('none') !== -1 ||
+                value.indexOf('unset') !== -1)
+        ) {
+            return transparent();
+        }
+        return colorMapped;
     }
 };
 

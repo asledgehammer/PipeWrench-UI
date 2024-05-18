@@ -1,4 +1,3 @@
-import { tPrint } from '../../util/table';
 import { HTMLElement, CSS_DEFAULT_ELEMENT } from '../HTMLElement';
 
 export interface ScriptAttributes {

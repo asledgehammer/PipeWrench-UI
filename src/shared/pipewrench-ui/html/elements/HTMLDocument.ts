@@ -1,16 +1,14 @@
 import { Core } from '@asledgehammer/pipewrench';
-import { HTMLElement, CSS_DEFAULT_ELEMENT, IHTMLElementAttributes } from '../HTMLElement';
+import { HTMLElement, IHTMLElementAttributes } from '../HTMLElement';
 import { AnyProps, ReactElement } from '../../React';
-import { HTMLBodyElement } from './body';
+import { HTMLBodyElement } from './HTMLBodyElement';
 import { formatNumValue } from '../../util/Format';
-import { getUIElement, initPZ } from '../PZ';
+import { getGraphics } from '../PZ';
 
 export interface IPWUIHtmlAttributes extends IHTMLElementAttributes { }
 
 export const CSS_DEFAULT_HTML = {
-  ...CSS_DEFAULT_ELEMENT,
-  'width': '100%',
-  'height': '100%',
+  'display': 'block',
 };
 
 export class HTMLDocument extends HTMLElement<'html'> implements IPWUIHtmlAttributes {
@@ -24,14 +22,9 @@ export class HTMLDocument extends HTMLElement<'html'> implements IPWUIHtmlAttrib
     this.body = new HTMLBodyElement({}, []);
     this.children.push(this.body);
   }
-
-  protected updateInternal(): void {
-    const javaObject = getUIElement();
-    if (javaObject == null) initPZ(this);
-  }
-
+  
   prerender(): void {
-    const javaObject = getUIElement();
+    const javaObject = getGraphics();
     javaObject.setTable(this);
     javaObject.setX(0);
     javaObject.setY(0);
@@ -102,5 +95,3 @@ export class HTMLDocument extends HTMLElement<'html'> implements IPWUIHtmlAttrib
     return found;
   }
 }
-
-export let document: HTMLDocument = new HTMLDocument({}, []);

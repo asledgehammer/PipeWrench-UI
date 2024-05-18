@@ -8,14 +8,14 @@ export function initPZ(table: any) {
     UIManager.AddUI(javaObject);
 
     radialMenu = new RadialMenu(0, 0, 0, 0);
-    radialMenu.setTable(table);
-    UIManager.AddUI(radialMenu);
+    // radialMenu.setTable(table);
+    // UIManager.AddUI(radialMenu);
 }
 
-export function getUIElement(): UIElement {
+export function getGraphics(): UIElement {
     return javaObject;
 }
 
-export function getRadialMenu(): RadialMenu {
+export function getRadialGraphics(): RadialMenu {
     return radialMenu;
 }

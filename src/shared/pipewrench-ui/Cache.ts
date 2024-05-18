@@ -1,6 +1,7 @@
 import { Texture } from "@asledgehammer/pipewrench";
 import { RGBA, asRGBA } from "./css/color/RGBA";
 import { HTMLElement } from "./html/HTMLElement";
+import { HTMLFont, MeasuredText, POOL_UIFONTS } from "./html/HTMLFont";
 
 export interface Cached {
     dirty: boolean;
@@ -30,8 +31,21 @@ export class CachedRectangle implements Cached {
     }
 }
 
+export const EMPTY_INNER_TEXT: MeasuredText = {
+    raw: '',
+    lines: [''],
+    size: {
+        width: 0,
+        height: 0,
+    },
+    widths: [],
+    heights: [],
+};
+
 export class ElementCache {
     element: HTMLElement<string>;
+
+    innerText: CachedValue<MeasuredText> = new CachedValue(EMPTY_INNER_TEXT);
 
     /* (Dimensions) */
     inner: CachedRectangle = new CachedRectangle(0, 0, 0, 0);
@@ -40,7 +54,10 @@ export class ElementCache {
     height: CachedValue<number> = new CachedValue(0);
 
     /* (Colors) */
+    font: CachedValue<HTMLFont> = new CachedValue(POOL_UIFONTS['small']);
+    color: CachedValue<RGBA> = new CachedValue(asRGBA(0, 0, 0, 1, '1'));
     backgroundColor: CachedValue<RGBA> = new CachedValue(asRGBA(0, 0, 0, 0, '1'));
+
     backgroundImage: CachedValue<Texture> = new CachedValue(null);
 
     constructor(element: HTMLElement<string>) {
