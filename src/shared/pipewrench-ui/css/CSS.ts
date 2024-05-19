@@ -321,6 +321,9 @@ export class CSSRuleset {
   'background-color': string = 'white';
   'background-image': string = 'none';
 
+  '--pz-debug-color-outer': string = 'red';
+  '--pz-debug-color-inner': string = 'green';
+
   constructor(...rawBlocks: SelectorBlock[]) {
     if (rawBlocks.length != 0) {
       for (const raw of rawBlocks) {

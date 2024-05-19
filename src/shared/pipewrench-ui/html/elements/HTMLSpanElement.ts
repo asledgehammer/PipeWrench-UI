@@ -14,12 +14,11 @@ export interface SpanAttributes extends IHTMLElementAttributes { }
 export type SpanProps = Props & {};
 
 export class HTMLSpanElement extends HTMLElement<'span'> {
-  constructor(props: SpanProps, children: Element[], text: string) {
+  constructor(props: SpanProps, children: Element[]) {
     super('span', CSS_DEFAULT_SPAN, props, children);
-    this.innerText = text;
-    print('children.length = ' + tostring(children.length));
-    if(children.length == 1) {
-      print(tPrint(children, 0, 4));
-    }
+    // print('children.length = ' + tostring(children.length));
+    // if(children.length == 1) {
+      // print(tPrint(children, 0, 4));
+    // }
   }
 }

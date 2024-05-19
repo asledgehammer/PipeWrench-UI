@@ -50,6 +50,7 @@ export class ElementCache {
     /* (Dimensions) */
     inner: CachedRectangle = new CachedRectangle(0, 0, 0, 0);
     outer: CachedRectangle = new CachedRectangle(0, 0, 0, 0);
+    content: { width: number; height: number; dirty: boolean } = { width: 0, height: 0, dirty: true };
     width: CachedValue<number> = new CachedValue(0);
     height: CachedValue<number> = new CachedValue(0);
 
@@ -59,6 +60,9 @@ export class ElementCache {
     backgroundColor: CachedValue<RGBA> = new CachedValue(asRGBA(0, 0, 0, 0, '1'));
 
     backgroundImage: CachedValue<Texture> = new CachedValue(null);
+
+    '--pz-debug-color-outer': CachedValue<RGBA> = new CachedValue(asRGBA(1, 0, 0, 1, '1'));
+    '--pz-debug-color-inner': CachedValue<RGBA> = new CachedValue(asRGBA(0, 1, 0, 1, '1'));
 
     constructor(element: HTMLElement<string>) {
         this.element = element;

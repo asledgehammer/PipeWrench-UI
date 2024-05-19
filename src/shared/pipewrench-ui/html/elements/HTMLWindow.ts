@@ -9,7 +9,9 @@ import { HTMLFontPool } from "../HTMLFont";
 
 const DEFAULT_CSS_WINDOW: { [rule: string]: string } = {
     'background-color': 'white',
-    'color': 'black'
+    'color': 'black',
+    '--pz-debug-color-outer': 'purple',
+    '--pz-debug-color-inner': 'purple',
 };
 
 export class HTMLWindow extends HTMLElement<'window'> {
@@ -38,14 +40,22 @@ export class HTMLWindow extends HTMLElement<'window'> {
     }
 
     calculateDimensions(force: boolean): void {
+        this.cache.inner.x1 =  this.cache.outer.x1;
+        this.cache.inner.y1 =  this.cache.outer.y1;
+        this.cache.inner.x2 =  this.cache.outer.x2;
+        this.cache.inner.y2 =  this.cache.outer.y2;
+    }
+
+    precalculateInternal(force: boolean): void {
+
         const core = Core.getInstance();
         const width = core.getScreenWidth();
         const height = core.getScreenHeight();
 
-        this.cache.outer.x1 = this.cache.inner.x1 = 0;
-        this.cache.outer.y1 = this.cache.inner.y1 = 0;
-        this.cache.outer.x2 = this.cache.inner.x2 = this.cache.width.value = width;
-        this.cache.outer.y2 = this.cache.inner.y2 = this.cache.height.value = height;
+        this.cache.outer.x1 = 0;
+        this.cache.outer.y1 = 0;
+        this.cache.outer.x2 = this.cache.content.width = this.cache.width.value = width;
+        this.cache.outer.y2 = this.cache.content.height = this.cache.height.value = height;
     }
 
     protected renderBackground(x: number, y: number, w: number, h: number): void {

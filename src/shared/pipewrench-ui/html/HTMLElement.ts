@@ -1,5 +1,5 @@
-import { Core, UIFont } from "@asledgehammer/pipewrench";
-import { CSSRuleset } from "../css/CSS";
+import { Core, getRenderer, getTextOrNull, UIFont } from "@asledgehammer/pipewrench";
+import { CSSRuleset, DisplayValue } from "../css/CSS";
 import { CSSReader } from "../css/CSSParser";
 import { HTMLImageElement } from "./elements/HTMLImageElement";
 import { TextureCache } from "../TextureCache";
@@ -13,10 +13,12 @@ import { Event } from "../event/Event";
 import { tPrint } from "../util/table";
 import { HTMLRawText } from "./elements/HTMLRawText";
 import { HTMLFont, HTMLFontPool } from "./HTMLFont";
+import { RGBA } from "../css/color/RGBA";
 
 export const CSS_DEFAULT_ELEMENT = {
     'background-color': 'transparent',
     'color': 'inherit',
+    'display': 'inline',
 };
 
 export interface IHTMLElementAttributes {
@@ -104,15 +106,17 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
                     this.appendChild(child);
                 }
             }
-
         }
     }
+
+    /* ******************************************************************************************** */
 
     /** (Java-side hook into the mock ISUIElement) */
     update2(): void {
         if (this.checkRemovalFlag()) return;
-        this.updateInternal();
+        this.precalculate(false);
         this.calculate(false);
+        this.updateInternal();
         if (this.onupdate) this.onupdate(this);
         this.updateChildren();
     }
@@ -148,6 +152,124 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
         }
     }
 
+    /* ******************************************************************************************** */
+
+    precalculate(force: boolean) {
+        this.precalculateChildren(force);
+        this.precalculateInternal(force);
+
+        this.precalculateContents(force);
+    }
+
+    precalculateContents(force: boolean) {
+        const { cssRuleset } = this;
+        if (cssRuleset.display != null) {
+            switch (cssRuleset.display) {
+                case "block": {
+                    // this.precalculateDisplayAsBlock(force);
+                    this.precalculateDisplayAsInline(force);
+                    break;
+                }
+                case "flex": {
+                    this.precalculateDisplayAsFlex(force);
+                    break;
+                }
+                case "inline": {
+                    this.precalculateDisplayAsInline(force);
+                    break;
+                }
+                case "inline-block": {
+                    this.precalculateDisplayAsInlineBlock(force);
+                    break;
+                }
+                case "none": {
+                    this.precalculateDisplayAsNone(force);
+                    break;
+                }
+            }
+        }
+    }
+
+    precalculateInternal(force: boolean) { }
+
+    precalculateChildren(force: boolean) {
+        if (this.children.length == 0) return;
+        for (let index = 0; index < this.children.length; index++) {
+            const child = this.children[index];
+            child.precalculate(force);
+        }
+    }
+
+    precalculateDisplayAsBlock(force: boolean) {
+        const { children } = this;
+
+        let offsetX = 0;
+        let offsetY = 0;
+    }
+
+    precalculateDisplayAsFlex(force: boolean) {
+        const { children } = this;
+
+        let offsetX = 0;
+        let offsetY = 0;
+    }
+
+    precalculateDisplayAsInline(force: boolean) {
+        const { cache, children } = this;
+
+        let maxWidth = 0;
+        let maxHeight = 0;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        for (let index = 0; index < children.length; index++) {
+            const child = children[index];
+            if (child.tag == 'rawtext' && (child as any).paginate != null) {
+                (child as any).paginate(this.cache.width.value, this.cache.height.value);
+            }
+
+            offsetX += child.cache.width.value;
+
+            switch (child.cssRuleset.display) {
+                case "none": {
+                    break;
+                }
+                case "block": {
+                    if (offsetX > maxWidth) {
+                        maxWidth = offsetX;
+                    }
+                    offsetX = 0;
+                    offsetY += child.cache.height.value;
+                    break;
+                }
+                case "inline": {
+                    break;
+                }
+            }
+        }
+
+        maxHeight += offsetY;
+
+        cache.width.value = maxWidth;
+        cache.height.value = maxHeight;
+    }
+
+    precalculateDisplayAsInlineBlock(force: boolean) {
+        const { children } = this;
+
+        let offsetX = 0;
+        let offsetY = 0;
+    }
+
+    precalculateDisplayAsNone(force: boolean) {
+        const { children } = this;
+
+        let offsetX = 0;
+        let offsetY = 0;
+    }
+
+    /* ******************************************************************************************** */
+
     calculate(force: boolean) {
         this.calculateFont(force);
         this.calculateColor(force);
@@ -155,36 +277,18 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
         // Calculate background-image before dimensions for <img> elements.
         this.calculateBackgroundImage(force);
         this.calculateDimensions(force);
-        this.calculateInnerText(force);
+        this.calculateInternal(force);
+        this.calculateDebug(force);
     }
 
-    calculateInnerText(force: boolean) {
-
-        if (this.innerText == this.cache.innerText.value.raw) return;
-        if (this.innerText != null) {
-            if (this.innerText.length == 0) {
-                this.cache.innerText.value = EMPTY_INNER_TEXT;
-                this.cache.innerText.dirty = false;
-                return;
-            } else {
-                const core = Core.getInstance();
-                let width = core.getScreenWidth();
-                let height = core.getScreenHeight();
-
-                const { parent } = this;
-                if (parent != null) {
-                    width = parent.cache.inner.x2 - parent.cache.inner.x1;
-                    height = parent.cache.inner.y2 - parent.cache.inner.y1;
-                }
-
-                this.cache.innerText.value = this.cache.font.value.measureText(this.innerText, width, height);
-                this.cache.innerText.dirty = false;
-            }
-        } else {
-            this.cache.innerText.value = EMPTY_INNER_TEXT;
-            this.cache.innerText.dirty = false;
-        }
+    calculateDebug(force: boolean) {
+        const colorPZDebugOuter = formatColor(this, this.cssRuleset['--pz-debug-color-outer']);
+        const colorPZDebugInner = formatColor(this, this.cssRuleset['--pz-debug-color-inner']);
+        this.cache["--pz-debug-color-outer"].value = colorPZDebugOuter;
+        this.cache["--pz-debug-color-inner"].value = colorPZDebugInner;
     }
+
+    calculateInternal(force: boolean) { }
 
     calculateFont(force: boolean) {
         const { cache, cssRuleset } = this;
@@ -269,7 +373,7 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
         cache.inner.x2 = cache.outer.x2;
         cache.inner.y2 = cache.outer.y2;
 
-        print(`${tPrint(cache.inner, 0, 4)} {'width'=${cache.width.value}, 'height'=${cache.height.value}}`);
+        // print(`${tPrint(cache.inner, 0, 4)} {'width'=${cache.width.value}, 'height'=${cache.height.value}}`);
     }
 
     calculateColor(force: boolean) {
@@ -321,6 +425,8 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
         cache.backgroundImage.dirty = false;
     }
 
+    /* ******************************************************************************************** */
+
     /**
      * (Executed on the render thread)
      */
@@ -344,6 +450,8 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
         }
     }
 
+    /* ******************************************************************************************** */
+
     /** (Java-side hook into the mock ISUIElement) */
     render(): void {
 
@@ -362,9 +470,13 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
         this.renderInternal();
         if (this.onrender) this.onrender(this);
         this.renderChildren();
+
+        this.renderDebug();
     }
 
-    renderInternal(): void { }
+    renderInternal(): void {
+
+    }
 
     renderChildren(): void {
         // Render children.
@@ -374,6 +486,59 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
                 if (child != null && child.render != null) child.render();
             }
         }
+    }
+
+    renderDebug(): void {
+        const { tag } = this;
+        const renderer = getRenderer();
+        function drawLineH(x: number, y: number, length: number, thickness: number, r: number, g: number, b: number, a: number) {
+            renderer.renderline(null, x, y, x + length, y, r, g, b, a, thickness);
+        }
+        function drawLineV(x: number, y: number, length: number, thickness: number, r: number, g: number, b: number, a: number) {
+            renderer.renderline(null, x, y, x, y + length, r, g, b, a, thickness);
+        }
+        function drawRectPartial(
+            x: number, y: number, width: number, height: number,
+            n: boolean, s: boolean, e: boolean, w: boolean,
+            r: number, g: number, b: number, a: number,
+            thickness: number
+        ) {
+
+            if (tag == 'html') {
+                print(`[${tag}] => drawRect(x: ${x}, y: ${y}, width: ${width}, height: ${height})`);
+            }
+            if (n) drawLineH(x, y, width, thickness, r, g, b, a);
+            if (s) drawLineH(x, y + height, width, thickness, r, g, b, a);
+            if (w) drawLineV(x, y, height, thickness, r, g, b, a);
+            if (e) drawLineV(x + width, y, height, thickness, r, g, b, a);
+        }
+        function drawRect(
+            x: number, y: number, w: number, h: number,
+            r: number, g: number, b: number, a: number,
+            thickness: number
+        ) {
+            drawRectPartial(x, y, w, h, true, true, true, true, r, g, b, a, thickness);
+        }
+
+        const colorOuter = this.cache["--pz-debug-color-outer"].value;
+        const { r: or, g: og, b: ob, a: oa } = colorOuter;
+
+        const colorInner = this.cache["--pz-debug-color-inner"].value;
+        const { r: ir, g: ig, b: ib, a: ia } = colorInner;
+
+        drawRect(
+            this.cache.outer.x1, this.cache.outer.y1,
+            this.cache.outer.x2 - this.cache.outer.x1, this.cache.outer.y2 - this.cache.outer.y1,
+            or, og, ob, oa,
+            1
+        );
+
+        drawRect(
+            this.cache.inner.x1, this.cache.inner.y1,
+            this.cache.inner.x2 - this.cache.inner.x1, this.cache.inner.y2 - this.cache.inner.y1,
+            ir, ig, ib, ia,
+            1
+        );
     }
 
     protected renderBackground(x: number, y: number, w: number, h: number) {
@@ -405,6 +570,8 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
             this.cache.font.value.drawText(this.cache.innerText.value, this.cache.inner.x1, this.cache.inner.x2, r, g, b, a);
         }
     }
+
+    /* ******************************************************************************************** */
 
     dispatchEvent(event: Event<string>): void {
         let listeners = this.listeners[event._type];
@@ -472,12 +639,7 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
         if (listeners.length == 0) delete this.listeners[type];
     }
 
-    /**
-     * (Hook from UIElement when a resize occurs)
-     */
-    onResize() {
-        this._dirty = true;
-    }
+    /* ******************************************************************************************** */
 
     appendChild(aChild: HTMLElement<string>) {
 
@@ -505,6 +667,8 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
         child.parent = null;
         this.children.splice(index, 1);
     }
+
+    /* ******************************************************************************************** */
 
     /**
      * Sets the CSS for the element specifically.

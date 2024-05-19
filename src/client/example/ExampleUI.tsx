@@ -16,5 +16,7 @@ Events.onMainMenuEnter.addListener(() => {
 
   const ourWindow = createWindow();
   const { document } = ourWindow;
-  document.appendChild(element);
+  document.body.appendChild(element);
+
+  print(ourWindow.printTree(0));
 });
