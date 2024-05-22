@@ -1,5 +1,5 @@
-import { HTMLElement } from "../../html/HTMLElement";
-import { Event } from "../Event";
+import { HTMLElement } from "../../../html/HTMLElement";
+import { Event } from "../../Event";
 import { MouseData, MouseEvent } from "./MouseEvent";
 import { MouseExitEvent } from "./MouseExitEvent";
 import { RelatableEvent } from "./RelateableEvent";

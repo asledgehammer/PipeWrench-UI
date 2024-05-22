@@ -39,13 +39,6 @@ export class HTMLWindow extends HTMLElement<'window'> {
         }
     }
 
-    calculateDimensions(force: boolean): void {
-        this.cache.inner.x1 =  this.cache.outer.x1;
-        this.cache.inner.y1 =  this.cache.outer.y1;
-        this.cache.inner.x2 =  this.cache.outer.x2;
-        this.cache.inner.y2 =  this.cache.outer.y2;
-    }
-
     precalculateInternal(force: boolean): void {
 
         const core = Core.getInstance();

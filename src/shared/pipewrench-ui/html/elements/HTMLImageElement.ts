@@ -46,40 +46,40 @@ export class HTMLImageElement extends HTMLElement<'img'> implements ImageAttribu
     if (props['height'] != null) this.height = toInt(tonumber(props['height']));
   }
 
-  protected renderBackground(x: number, y: number, w: number, h: number) {
+  // protected renderBackground(x: number, y: number, w: number, h: number) {
 
-    const javaObject = getGraphics();
+  //   const javaObject = getGraphics();
 
-    // Draw the background of the element.
-    let { value: backgroundColor } = this.cache.backgroundColor;
-    const { value: texture } = this.cache.backgroundImage;
+  //   // Draw the background of the element.
+  //   let { value: backgroundColor } = this.cache.backgroundColor;
+  //   const { value: texture } = this.cache.backgroundImage;
 
-    if (texture != null) {
-      // <img> doesn't need a background-color to render the texture.
-      if (backgroundColor == null) backgroundColor = COLOR_WHITE;
-      let { r, g, b, a } = backgroundColor;
-      if (a != 0) {
-        javaObject.DrawTextureScaledColor(texture, x, y, w, h, r, g, b, a);
-      }
-    } else {
-      // <img> background-color should by default be transparent if unresolved.
-      const { r, g, b, a } = backgroundColor;
-      if (backgroundColor != null && a != 0) {
-        javaObject.DrawTextureScaledColor(null, x, y, w, h, r, g, b, a);
-      }
-    }
-  }
+  //   if (texture != null) {
+  //     // <img> doesn't need a background-color to render the texture.
+  //     if (backgroundColor == null) backgroundColor = COLOR_WHITE;
+  //     let { r, g, b, a } = backgroundColor;
+  //     if (a != 0) {
+  //       javaObject.DrawTextureScaledColor(texture, x, y, w, h, r, g, b, a);
+  //     }
+  //   } else {
+  //     // <img> background-color should by default be transparent if unresolved.
+  //     const { r, g, b, a } = backgroundColor;
+  //     if (backgroundColor != null && a != 0) {
+  //       javaObject.DrawTextureScaledColor(null, x, y, w, h, r, g, b, a);
+  //     }
+  //   }
+  // }
 
-  protected renderInnerText() {
-    const { alt } = this;
-    const { value: texture } = this.cache.backgroundImage;
-    const { x1: x, y1: y } = this.cache.outer;
+  // protected renderInnerText() {
+  //   const { alt } = this;
+  //   const { value: texture } = this.cache.backgroundImage;
+  //   const { x1: x, y1: y } = this.cache.outer;
 
-    const javaObject = getGraphics();
+  //   const javaObject = getGraphics();
 
-    if (texture == null && alt != null && alt.length != 0) {
-      javaObject.DrawTextureScaled(TEX_BROKEN_IMG, x + 1, y, 21, 24, 1);
-      javaObject.DrawText(UIFont.Large, alt, x + 26, y, 0, 0, 0, 1);
-    }
-  }
+  //   if (texture == null && alt != null && alt.length != 0) {
+  //     javaObject.DrawTextureScaled(TEX_BROKEN_IMG, x + 1, y, 21, 24, 1);
+  //     javaObject.DrawText(UIFont.Large, alt, x + 26, y, 0, 0, 0, 1);
+  //   }
+  // }
 }

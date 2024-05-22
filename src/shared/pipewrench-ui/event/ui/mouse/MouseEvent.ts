@@ -1,7 +1,7 @@
 import { Keyboard } from "@asledgehammer/pipewrench";
-import { HTMLElement } from "../../html/HTMLElement";
-import { int } from "../../util/Alias";
-import { Event } from "../Event";
+import { HTMLElement } from "../../../html/HTMLElement";
+import { int } from "../../../util/Alias";
+import { UIEvent } from "../../UIEvent";
 
 export type MouseData = {
     screenX: int;
@@ -11,7 +11,7 @@ export type MouseData = {
     buttons: boolean[] | int;
 }
 
-export abstract class MouseEvent<Type extends string> extends Event<Type> {
+export abstract class MouseEvent<Type extends string> extends UIEvent<Type> {
 
     /** Returns true if the alt key was down when the mouse event was fired. */
     readonly altKey: boolean;

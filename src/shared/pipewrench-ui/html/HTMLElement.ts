@@ -19,6 +19,13 @@ export const CSS_DEFAULT_ELEMENT = {
     'background-color': 'transparent',
     'color': 'inherit',
     'display': 'inline',
+    'width': 'auto',
+    'height': 'auto',
+    'top': 'auto',
+    'left': 'auto',
+    'bottom': 'auto',
+    'right': 'auto',
+    'position': 'static',
 };
 
 export interface IHTMLElementAttributes {
@@ -68,12 +75,6 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
         this.tag = tag;
         this.cssRulesetDefault = defaultCSS;
         this.cache = new ElementCache(this);
-
-        // if(this.tag == 'img') {
-        // print(`img.children: `);
-        // print(tPrint(children, 0, 4));
-        // throw new Error();
-        // }
 
         // Handle properties.
         if (props['id'] != null) this.id = props['id'];
@@ -157,37 +158,11 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
     precalculate(force: boolean) {
         this.precalculateChildren(force);
         this.precalculateInternal(force);
-
         this.precalculateContents(force);
     }
 
     precalculateContents(force: boolean) {
-        const { cssRuleset } = this;
-        if (cssRuleset.display != null) {
-            switch (cssRuleset.display) {
-                case "block": {
-                    // this.precalculateDisplayAsBlock(force);
-                    this.precalculateDisplayAsInline(force);
-                    break;
-                }
-                case "flex": {
-                    this.precalculateDisplayAsFlex(force);
-                    break;
-                }
-                case "inline": {
-                    this.precalculateDisplayAsInline(force);
-                    break;
-                }
-                case "inline-block": {
-                    this.precalculateDisplayAsInlineBlock(force);
-                    break;
-                }
-                case "none": {
-                    this.precalculateDisplayAsNone(force);
-                    break;
-                }
-            }
-        }
+        
     }
 
     precalculateInternal(force: boolean) { }
@@ -200,74 +175,6 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
         }
     }
 
-    precalculateDisplayAsBlock(force: boolean) {
-        const { children } = this;
-
-        let offsetX = 0;
-        let offsetY = 0;
-    }
-
-    precalculateDisplayAsFlex(force: boolean) {
-        const { children } = this;
-
-        let offsetX = 0;
-        let offsetY = 0;
-    }
-
-    precalculateDisplayAsInline(force: boolean) {
-        const { cache, children } = this;
-
-        let maxWidth = 0;
-        let maxHeight = 0;
-        let offsetX = 0;
-        let offsetY = 0;
-
-        for (let index = 0; index < children.length; index++) {
-            const child = children[index];
-            if (child.tag == 'rawtext' && (child as any).paginate != null) {
-                (child as any).paginate(this.cache.width.value, this.cache.height.value);
-            }
-
-            offsetX += child.cache.width.value;
-
-            switch (child.cssRuleset.display) {
-                case "none": {
-                    break;
-                }
-                case "block": {
-                    if (offsetX > maxWidth) {
-                        maxWidth = offsetX;
-                    }
-                    offsetX = 0;
-                    offsetY += child.cache.height.value;
-                    break;
-                }
-                case "inline": {
-                    break;
-                }
-            }
-        }
-
-        maxHeight += offsetY;
-
-        cache.width.value = maxWidth;
-        cache.height.value = maxHeight;
-    }
-
-    precalculateDisplayAsInlineBlock(force: boolean) {
-        const { children } = this;
-
-        let offsetX = 0;
-        let offsetY = 0;
-    }
-
-    precalculateDisplayAsNone(force: boolean) {
-        const { children } = this;
-
-        let offsetX = 0;
-        let offsetY = 0;
-    }
-
     /* ******************************************************************************************** */
 
     calculate(force: boolean) {
@@ -276,7 +183,6 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
         this.calculateBackgroundColor(force);
         // Calculate background-image before dimensions for <img> elements.
         this.calculateBackgroundImage(force);
-        this.calculateDimensions(force);
         this.calculateInternal(force);
         this.calculateDebug(force);
     }
@@ -306,74 +212,6 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
         }
 
         // print(`font: ${tPrint(cache.font.value, 0, 4)}`);
-    }
-
-    calculateDimensions(force: boolean) {
-        const element = this;
-        const { cache, cssRuleset: style, tag } = this;
-
-        // [CSS] - width
-        let width = formatNumValue(element, 'width', style.width);
-        if (width == null) {
-            if (tag == 'img') {
-                const img = (element as any) as HTMLImageElement;
-                if (img.width != null) {
-                    width = img.width;
-                }
-                else if (cache.backgroundImage.value != null) {
-                    width = cache.backgroundImage.value.getWidth();
-                } else {
-                    width = 0;
-                }
-            } else {
-                width = 0;
-            }
-        }
-
-        // [CSS] - height
-        let height = formatNumValue(element, 'height', style.height);
-        if (height == null) {
-            if (tag == 'img') {
-                const img = (element as any) as HTMLImageElement;
-                if (img.height != null) {
-                    height = img.height;
-                }
-                else if (cache.backgroundImage.value != null) {
-                    height = cache.backgroundImage.value.getHeight();
-                } else {
-                    height = 0;
-                }
-            } else {
-                height = 0;
-            }
-        }
-
-        cache.outer.x2 = cache.outer.x1 + width;
-        cache.outer.y2 = cache.outer.y1 + height;
-        cache.width.value = width;
-        cache.height.value = height;
-
-        // [CSS] - left
-        cache.outer.x1 = formatNumValue(element, 'left', style.left);
-        if (cache.outer.x1 == null) {
-            if (element.parent != null) cache.outer.x1 = element.parent.cache.outer.x1;
-            else cache.outer.x1 = 0;
-        }
-
-        // [CSS] - top
-        cache.outer.y1 = formatNumValue(element, 'top', style.top);
-        if (cache.outer.y1 == null) {
-            if (element.parent != null) cache.outer.y1 = element.parent.cache.outer.y1;
-            else cache.outer.y1 = 0;
-        }
-
-        // FIXME - Temporary. Calculate padding.
-        cache.inner.x1 = cache.outer.x1;
-        cache.inner.y1 = cache.outer.y1;
-        cache.inner.x2 = cache.outer.x2;
-        cache.inner.y2 = cache.outer.y2;
-
-        // print(`${tPrint(cache.inner, 0, 4)} {'width'=${cache.width.value}, 'height'=${cache.height.value}}`);
     }
 
     calculateColor(force: boolean) {
@@ -504,9 +342,9 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
             thickness: number
         ) {
 
-            if (tag == 'html') {
-                print(`[${tag}] => drawRect(x: ${x}, y: ${y}, width: ${width}, height: ${height})`);
-            }
+            // if (tag == 'html') {
+                // print(`[${tag}] => drawRect(x: ${x}, y: ${y}, width: ${width}, height: ${height})`);
+            // }
             if (n) drawLineH(x, y, width, thickness, r, g, b, a);
             if (s) drawLineH(x, y + height, width, thickness, r, g, b, a);
             if (w) drawLineV(x, y, height, thickness, r, g, b, a);

@@ -1,6 +1,6 @@
-import { HTMLElement } from "../../html/HTMLElement";
-import { Rectangle } from "../../util/Rectangle";
-import { Event } from "../Event";
+import { HTMLElement } from "../../../html/HTMLElement";
+import { Rectangle } from "../../../util/Rectangle";
+import { Event } from "../../Event";
 import { MouseData, MouseEvent } from "./MouseEvent";
 
 /**

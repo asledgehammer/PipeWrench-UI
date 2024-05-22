@@ -1,6 +1,6 @@
 import { getMouseX, getMouseY, isMouseButtonDown } from "@asledgehammer/pipewrench";
 import { int } from "../util/Alias";
-import { MouseMoveEvent } from "../event/mouse/MouseMoveEvent";
+import { MouseMoveEvent } from "../event/ui/mouse/MouseMoveEvent";
 import { HTMLElement } from "../html/HTMLElement";
 
 export const MOUSE_BUTTON_LEFT = 0;

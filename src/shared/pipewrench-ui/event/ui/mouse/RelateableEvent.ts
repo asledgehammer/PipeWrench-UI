@@ -1,4 +1,4 @@
-import { Event } from "../Event";
+import { Event } from "../../Event";
 
 /**
  * *RelatableEvent*. [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/relatedTarget)
