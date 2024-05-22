@@ -412,7 +412,7 @@ export abstract class HTMLElement<T extends string> implements ReactElement, IHT
     /* ******************************************************************************************** */
 
     dispatchEvent(event: Event<string>): void {
-        let listeners = this.listeners[event._type];
+        let listeners = this.listeners[event.type];
 
         // Nothing to listen. Nothing to do here.
         if (listeners == null || listeners.length == 0) {

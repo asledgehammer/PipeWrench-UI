@@ -1,6 +1,7 @@
 import { HTMLElement } from "../../../html/HTMLElement";
 import { Rectangle } from "../../../util/Rectangle";
 import { Event } from "../../Event";
+import { EventTarget } from "../../EventTarget";
 import { MouseData, MouseEvent } from "./MouseEvent";
 
 /**
@@ -24,5 +25,21 @@ export class MouseMoveEvent extends MouseEvent<'mousemove'> {
         const result = Rectangle.testPoint(x1, y1, x2, y2, this.screenX, this.screenY);
         // print(`[${target.tag}].test(x1: ${x1}, y1: ${y1}, x2: ${x2}, y2: ${y2}, mx: ${this.screenX}, my: ${this.screenY}) = ${result}`);
         return result;
+    }
+
+    composedPath(): EventTarget[] {
+        throw new Error("Method not implemented.");
+    }
+    
+    preventDefault(): void {
+        throw new Error("Method not implemented.");
+    }
+    
+    stopImmediatePropagation(): void {
+        throw new Error("Method not implemented.");
+    }
+    
+    stopPropagation(): void {
+        throw new Error("Method not implemented.");
     }
 }

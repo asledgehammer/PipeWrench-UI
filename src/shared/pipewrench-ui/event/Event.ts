@@ -1,3 +1,4 @@
+import { getTimeInMillis } from "@asledgehammer/pipewrench";
 import { HTMLElement } from "../html/HTMLElement";
 import { EventTarget } from "./EventTarget";
 
@@ -44,8 +45,6 @@ export abstract class Event<Type extends string> {
      * triggered during this process.
      */
     static readonly BUBBLING_PHASE = 3;
-
-    readonly _type: Type;
 
     /**
      * [Read more](https://developer.mozilla.org/en-US/docs/Web/API/Event/bubbles)
@@ -106,13 +105,66 @@ export abstract class Event<Type extends string> {
      */
     readonly target: EventTarget;
 
+    /**
+     * [Read more](https://developer.mozilla.org/en-US/docs/Web/API/Event/timeStamp)
+     * 
+     * The time (in milliseconds) at which the event was created.
+     */
     readonly timeStamp: number;
 
+    /**
+     * [Read more](https://developer.mozilla.org/en-US/docs/Web/API/Event/type)
+     * 
+     * A string containing the event's type. It is set when the event is constructed and is the name
+     * commonly used to refer to the specific event, such as `click`, `load`, or `error`.
+     */
+    readonly type: Type;
+
+    /**
+     * @param _type A string containing the event's type.
+     */
     constructor(_type: Type) {
-        this._type = _type;
+        this.type = _type;
+
+        // (Use PZ UNIX timestamp)
+        this.timeStamp = getTimeInMillis();
     }
 
     abstract cloneEvent(target: HTMLElement<string>): Event<string>;
 
     abstract test(target: HTMLElement<string>): boolean;
+
+    /**
+     * [Read more](https://developer.mozilla.org/en-US/docs/Web/API/Event/composedPath)
+     * 
+     * @returns An array of `EventTarget` objects representing the objects on which an event
+     * listener will be invoked.
+     */
+    abstract composedPath(): EventTarget[];
+
+    /**
+     * [Read more](https://developer.mozilla.org/en-US/docs/Web/API/Event/preventDefault)
+     * 
+     * Tells the user agent that if the event does not get explicitly handled, its default action
+     * should not be taken as it normally would be.
+     */
+    abstract preventDefault(): void;
+
+    /**
+     * [Read more](https://developer.mozilla.org/en-US/docs/Web/API/Event/stopImmediatePropagation)
+     * 
+     * Prevents other listeners of the same event from being called.
+     */
+    abstract stopImmediatePropagation(): void;
+
+    /**
+     * [Read more](https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation)
+     * 
+     * Prevents further propagation of the current event in the capturing and bubbling phases. It
+     * does not, however, prevent any default behaviors from occurring; for instance, clicks on
+     * links are still processed. If you want to stop those behaviors, see the `preventDefault()`
+     * method. It also does not prevent propagation to other event-handlers of the current element.
+     * If you want to stop those, see `stopImmediatePropagation()`.
+     */
+    abstract stopPropagation(): void;
 }
